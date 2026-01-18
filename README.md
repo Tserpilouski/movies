@@ -1,4 +1,4 @@
-Describe how migrate new tables wich will create localy do Neon. Tables create in prisma folder. The prisma/migration folder containes information about all migration.
+Describes how to migrate new tables created locally to Neon. Tables are defined in the prisma folder. The prisma/migration folder contains information about all migrations.
 
 First step:
 
@@ -6,8 +6,8 @@ First step:
 
 Second step:
 
-`npx prisma generate` - Generated types for tables
+`npx prisma generate` - Generate types for tables
 
-Generate a random secrate which can use:
+Generate a random secret:
 
 `openssl rand -base64 32`
