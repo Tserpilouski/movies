@@ -17,8 +17,9 @@ model User {
     id String @id @default(uuid())
     name String
     email String @unique
-    password String
-    createAt DateTime @default(now())
+    passwordHash String
+    role Role @default(USER)
+    createdAt DateTime @default(now())
 
     watchlistItems WatchlistItem[]
     movies Movie[] @relation("MovieCreator")
@@ -29,15 +30,33 @@ model Movie {
     title String
     overview String?
     releaseYear Int
-    genres String[] @default([])
     runtime Int?
     posterUrl String?
     createdBy String
     createdAt DateTime @default(now())
 
     creator User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+    genres MovieGenre[]
     watchlistItems WatchlistItem[]
 }
+
+model Genre {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+
+  movies MovieGenre[]
+}
+
+model MovieGenre {
+  movieId String
+  genreId Int
+
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+}
+
 
 model WatchlistItem {
     id String @id @default(uuid())
@@ -61,4 +80,9 @@ enum WatchlistStatus {
     WATCHING
     COMPLETED
     DROPPED
+}
+
+enum Role {
+    USER
+    ADMIN
 }
