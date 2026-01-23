@@ -1,10 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+const ADMIN_USER_ID = "0d097560-3f72-4935-b5ba-165e76d1daed";
 
-const prisma = new PrismaClient();
-
-const createId = "0d097560-3f72-4935-b5ba-165e76d1daed";
-
-const movies = [
+export const movies = [
     {
         title: "Начало",
         overview:
@@ -13,7 +9,6 @@ const movies = [
         genres: ["Sci-Fi", "Thriller", "Action"],
         runtime: 148,
         posterUrl: "https://example.com/posters/inception.jpg",
-        createdBy: createId,
     },
     {
         title: "Интерстеллар",
@@ -23,7 +18,6 @@ const movies = [
         genres: ["Sci-Fi", "Drama", "Adventure"],
         runtime: 169,
         posterUrl: "https://example.com/posters/interstellar.jpg",
-        createdBy: createId,
     },
     {
         title: "Бойцовский клуб",
@@ -33,7 +27,6 @@ const movies = [
         genres: ["Drama", "Thriller"],
         runtime: 139,
         posterUrl: "https://example.com/posters/fight-club.jpg",
-        createdBy: createId,
     },
     {
         title: "Матрица",
@@ -42,7 +35,6 @@ const movies = [
         genres: ["Sci-Fi", "Action"],
         runtime: 136,
         posterUrl: "https://example.com/posters/matrix.jpg",
-        createdBy: createId,
     },
     {
         title: "Форрест Гамп",
@@ -51,28 +43,32 @@ const movies = [
         genres: ["Drama", "Romance"],
         runtime: 142,
         posterUrl: "https://example.com/posters/forrest-gump.jpg",
-        createdBy: createId,
     },
 ];
 
-const main = async () => {
+export const seedMovies = async (prisma) => {
     console.log("Seeding movies...");
 
     for (const movie of movies) {
-        await prisma.movie.create({
-            data: movie,
+        const { genres: genreNames, ...movieData } = movie;
+
+        // Find genre IDs
+        const genreRecords = await prisma.genre.findMany({
+            where: { name: { in: genreNames } },
         });
-        console.log("Created movie:", movie.title);
+
+        const createdMovie = await prisma.movie.create({
+            data: {
+                ...movieData,
+                createdBy: ADMIN_USER_ID,
+                genres: {
+                    create: genreRecords.map((genre) => ({
+                        genre: { connect: { id: genre.id } },
+                    })),
+                },
+            },
+        });
+
+        console.log("Created movie:", createdMovie.title);
     }
-
-    console.log("Seeding completed!");
 };
-
-main()
-    .catch((err) => {
-        console.error(err);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });

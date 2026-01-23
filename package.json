@@ -6,7 +6,10 @@
     "scripts": {
         "dev": "nodemon src/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "seed:movies": "node prisma/seed.js"
+        "seed": "node prisma/seeds/index.js"
+    },
+    "prisma": {
+        "seed": "node prisma/seeds/index.js"
     },
     "keywords": [],
     "author": "",
